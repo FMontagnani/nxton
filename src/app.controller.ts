@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { EquationService } from './math/equation/equation.service';
+import { IEquationSolver } from './math/interfaces';
 
 interface EquationDTO {
   equation: string;
@@ -7,13 +7,11 @@ interface EquationDTO {
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: EquationService) {}
+  constructor(private readonly appService: IEquationSolver) {}
 
   @Post()
   calculate(@Body() equationDTO: EquationDTO) {
-    this.appService.orderOperations(equationDTO.equation.trim());
-
-    const result = this.appService.executeOperations();
+    const result = this.appService.executeOperations(equationDTO.equation);
 
     return { result };
   }

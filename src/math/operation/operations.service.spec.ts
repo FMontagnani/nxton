@@ -56,9 +56,7 @@ describe('OperationsService', () => {
     try {
       service.divide(num1, num2);
     } catch (err: unknown) {
-      expect((err as Error).message).toBe(
-        "Invalid operation, can't divide by 0",
-      );
+      expect((err as Error).message).toBe("Bad Request: Can't divide by zero!");
     }
   });
 });
