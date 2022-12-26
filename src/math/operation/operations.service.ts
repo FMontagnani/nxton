@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IOperations } from '../interfaces';
+import { ZeroDivisionException } from './operations.exceptions';
 
 @Injectable()
 export class OperationsService implements IOperations {
@@ -17,7 +18,7 @@ export class OperationsService implements IOperations {
 
   divide(num1: number, num2: number) {
     if (num2 === 0) {
-      throw new Error("Invalid operation, can't divide by 0");
+      throw new ZeroDivisionException();
     }
 
     return num1 / num2;
