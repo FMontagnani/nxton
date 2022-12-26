@@ -15,10 +15,30 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/ (POST): 2 + 2', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+      .post('/')
+      .send({ equation: '2 + 2' })
+      .expect(201)
+      .expect({ result: 4 });
+  });
+
+  it('/ (POST): 2 + ( 1 / 5 ) * 5', () => {
+    return request(app.getHttpServer())
+      .post('/')
+      .send({ equation: '2 + ( 1 / 5 ) * 5' })
+      .expect(201)
+      .expect({ result: 3 });
+  });
+
+  it('/ (POST): Error 1 / 0', () => {
+    return request(app.getHttpServer())
+      .post('/')
+      .send({ equation: '1 / 0' })
+      .expect(400)
+      .expect({
+        statusCode: 400,
+        message: "Bad Request: Can't divide by zero!",
+      });
   });
 });
