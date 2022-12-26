@@ -6,6 +6,9 @@ const OPERANDS = {
   SUBTRACT: '-',
   MULTIPLY: '*',
   DIVIDE: '/',
+};
+
+const GROUP_SIGNS = {
   LEFT: '(',
   RIGHT: ')',
 };
@@ -17,50 +20,64 @@ const PREDENCES = {
   DIVIDE: '3',
 };
 
-function shuntingYardAlgorithm(expression: string) {
-  const outputStack = [];
-  const operatorStack = [];
-
-  expression.split('').forEach((value) => {
-    if (!Number.isNaN(value)) {
-      outputStack.push(value);
-    }
-
-    if (value === OPERANDS.LEFT) {
-      operatorStack.push(value);
-    }
-
-    if (value === OPERANDS.RIGHT) {
-      while (operatorStack[operatorStack.length - 1] !== OPERANDS.LEFT) {
-        const operator = operatorStack.pop();
-        outputStack.push(operator);
-      }
-      if (operatorStack[operatorStack.length - 1] === OPERANDS.LEFT) {
-        operatorStack.pop();
-      }
-    }
-
-    while (checkOperatorSteps(operatorStack, value)) {
-      const operator = operatorStack.pop();
-      outputStack.push(operator);
-    }
-    operatorStack.push(value);
-  });
-
-  operatorStack.forEach(() => {
-    const operand = operatorStack.pop();
-    outputStack.push(operand);
-  });
-
-  return outputStack;
-}
-
 function checkOperatorSteps(stack: string[], value: string) {
   const topOperand = stack[stack.length - 1];
 
   return (
-    topOperand !== OPERANDS.LEFT && PREDENCES[topOperand] >= PREDENCES[value]
+    topOperand !== GROUP_SIGNS.LEFT && PREDENCES[topOperand] >= PREDENCES[value]
   );
+}
+
+function inRightLimiterCondition(stack: string[]) {
+  const lastIndex = stack.length - 1;
+  return stack[lastIndex] !== GROUP_SIGNS.LEFT;
+}
+
+function isNumber(value: string) {
+  return !Number.isNaN(Number(value));
+}
+
+function isOperand(value: string) {
+  return Object.values(OPERANDS).some((operand) => operand === value);
+}
+
+function shuntingYardAlgorithm(expression: string) {
+  const outputStack = [];
+  const operatorStack = [];
+
+  expression.split(' ').forEach((value) => {
+    if (isNumber(value)) {
+      outputStack.push(Number(value));
+    }
+
+    if (value === GROUP_SIGNS.LEFT) {
+      operatorStack.push(value);
+    }
+
+    if (value === GROUP_SIGNS.RIGHT) {
+      while (inRightLimiterCondition(operatorStack)) {
+        const operator = operatorStack.pop();
+        outputStack.push(operator);
+      }
+      if (operatorStack[operatorStack.length - 1] === GROUP_SIGNS.LEFT) {
+        operatorStack.pop();
+      }
+    }
+
+    if (isOperand(value)) {
+      while (checkOperatorSteps(operatorStack, value)) {
+        const operator = operatorStack.pop();
+        outputStack.push(operator);
+      }
+      operatorStack.push(value);
+    }
+  });
+
+  const revertedOperators = operatorStack.reverse();
+
+  revertedOperators.forEach((operator) => outputStack.push(operator));
+
+  return outputStack;
 }
 
 @Injectable()
@@ -74,16 +91,18 @@ export class EquationService implements IEquationSolver {
     this.operations = shuntingYardAlgorithm(equation);
   }
 
-  executeOperations(): number {
+  executeOperations(equation: string): number {
+    this.orderOperations(equation);
+
     let num1;
     let num2;
 
     this.operations.forEach((value) => {
-      if (!Number.isNaN(value)) {
+      if (isNumber(value)) {
         this.stack.push(value);
       }
 
-      if (value in Object.keys(OPERANDS)) {
+      if (isOperand(value)) {
         num2 = this.stack.pop();
         num1 = this.stack.pop();
 
