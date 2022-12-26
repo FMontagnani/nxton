@@ -7,5 +7,5 @@ export abstract class IOperations {
 
 export abstract class IEquationSolver {
   abstract orderOperations(equation: string): void;
-  abstract executeOperations(): number;
+  abstract executeOperations(equation: string): number;
 }
