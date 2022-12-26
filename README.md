@@ -28,6 +28,23 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## How to use it?
+
+1. After starting the app, there's only one endpoint available for a POST request: `http://localhost:3000`
+2. The request must included a payload with the shape:
+
+```
+{
+  "equation": "YOUR_EQUATION_HERE"
+}
+```
+3. The equation must always let a space between a number and a operaror or limiter (open or close parenthesis)
+  - Ex (GOOD): `2 + ( 5 * 2 ) / 3`
+  - Ex (BAD): `2 + (5 * 2) / 3`
+  - Ex (BAD): `2+(5*2)/3`
+
+
+
 ## Test
 
 ```bash
